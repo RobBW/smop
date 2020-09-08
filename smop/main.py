@@ -55,7 +55,6 @@ def print_list(l):
         pass
     finally:
         print("End of "+str(type(l)))
-        pass
 
 #Fixes issue with array reference being listed as function calls
 def resolve_array_refs(l,graph_list):

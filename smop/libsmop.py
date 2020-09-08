@@ -92,10 +92,7 @@ class matlabarray(np.ndarray):
             elif ix.__class__ is slice:
                 if self.size == 0 and ix.stop is None:
                     raise IndexError
-                if len(index) == 1:
-                    n = self.size
-                else:
-                    n = self.shape[i]
+                n = self.size if len(index) == 1 else self.shape[i]
                 indices.append(np.arange((ix.start or 1)-1,
                                           ix.stop  or n,
                                           ix.step  or 1,
@@ -127,10 +124,7 @@ class matlabarray(np.ndarray):
             return np.ndarray.__getitem__(self,indices)
 
     def __setslice__(self,i,j,value):
-        if i == 0 and j == sys.maxsize:
-            index = slice(None,None)
-        else:
-            index = slice(i,j)
+        index = slice(None,None) if i == 0 and j == sys.maxsize else slice(i,j)
         self.__setitem__(index,value)
         
     def sizeof(self,ix):
@@ -168,7 +162,7 @@ class matlabarray(np.ndarray):
                 #    matries may be resized to any shape.  A[B]=C
                 #    where A=[], and B is specific -- A[1:10]=C
                 #    rather than A[:]=C or A[1:end]=C
-                if self.size and not isvector_or_scalar(self):
+                if not isvector_or_scalar(self):
                     raise IndexError("One-dimensional resize "
                                      "works only on vectors, and "
                                      "row and column matrices")
@@ -335,7 +329,7 @@ class char(matlabarray):
         if self.ndim == 0:
             return ""
         if self.ndim == 1:
-            return "".join(s for s in self)
+            return "".join(iter(self))
         if self.ndim == 2:
             return "\n".join("".join(s) for s in self)
         raise NotImplementedError
@@ -393,7 +387,7 @@ def copy(a):
 
 def deal(a,**kwargs):
     #import pdb; pdb.set_trace()
-    return tuple([ai for ai in a.flat])
+    return tuple(a.flat)
 
 def disp(*args):
     print (args)
@@ -438,7 +432,7 @@ def find(a,n=None,d=None,nargout=1):
         if n is not None:
             i = i.take(n)
         return matlabarray(i)
-    if nargout == 2:
+    elif nargout == 2:
         i,j = np.nonzero(np.asarray(a))
         if n is not None:
             i = i.take(n)
@@ -659,10 +653,7 @@ def size(a, b=0, nargout=1):
 def size_equal(a,b):
     if a.size != b.size:
         return False
-    for i in range(len(a.shape)):
-        if a.shape[i] != b.shape[i]:
-            return False
-    return True
+    return all(a.shape[i] == b.shape[i] for i in range(len(a.shape)))
 
 from numpy import sqrt
 sort = builtins.sorted

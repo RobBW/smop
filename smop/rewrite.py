@@ -55,10 +55,13 @@ def colon_subscripts(u):
                 w._replace(op="::")
 
 def end_expressions(u):
-    if u.__class__ in (node.arrayref,node.cellarrayref):
-        if w.__class__ is node.expr and w.op == "end":
-            w.args[0] = u.func_expr
-            w.args[1] = node.number(i)  # FIXME
+    if (
+        u.__class__ in (node.arrayref, node.cellarrayref)
+        and w.__class__ is node.expr
+        and w.op == "end"
+    ):
+        w.args[0] = u.func_expr
+        w.args[1] = node.number(i)  # FIXME
 
 def let_statement(u):
     """
@@ -66,11 +69,11 @@ def let_statement(u):
     enclosed in square brackets, replace the matrix
     expr with a funcall.
     """
-    if u.__class__ is node.let:
-        if (u.ret.__class__ is node.ident and
-            u.args.__class__ is node.matrix):
-            u.args = node.funcall(func_expr=node.ident("matlabarray"),
-                                  args=node.expr_list([u.args]))
+    if u.__class__ is node.let and (
+        u.ret.__class__ is node.ident and u.args.__class__ is node.matrix
+    ):
+        u.args = node.funcall(func_expr=node.ident("matlabarray"),
+                              args=node.expr_list([u.args]))
 
 #    H = nx.connected_components(G.to_undirected())
 #    for i,component in enumerate(H):
