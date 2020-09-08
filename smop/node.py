@@ -33,8 +33,7 @@ def encode(s):
 def postorder(u):
     if isinstance(u,node):
         for v in u:
-            for t in postorder(v):
-                yield t
+            yield from postorder(v)
         yield u # returns only traversible objects
 
 def extend(cls):

@@ -155,10 +155,7 @@ def new():
                        "endswitch", "end_try_catch"):
             keyword = t.lexer.stack.pop()  # if,while,etc.
             #assert keyword == t.value or keyword == "try"
-            if keyword == "function":
-                t.type = "END_FUNCTION"
-            else:
-                t.type = "END_STMT"
+            t.type = "END_FUNCTION" if keyword == "function" else "END_STMT"
             return t
         else:
             t.type = reserved.get(t.value, "IDENT")
@@ -313,7 +310,6 @@ def new():
     def t_ELLIPSIS(t):
         r"\.\.\..*\n"
         t.lexer.lineno += 1
-        pass
 
     def t_SPACES(t):
         r"(\\\n|[ \t\r])+"
@@ -346,7 +342,7 @@ def main():
         except EOFError:
             reload(sys.modules["lexer.py"])
             lexer.input(line)
-            print(list(tok for tok in lexer))
+            print(list(lexer))
             line = ""
 
 

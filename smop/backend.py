@@ -241,10 +241,7 @@ reserved = set(
     #pi    sin  sqrt  tan
     
 def is_tab_empty(tab):
-    for elem in tab:
-        if elem != "":
-            return False
-    return True
+    return all(elem == "" for elem in tab)
 
 def compute_indexing(s):
     """
@@ -436,9 +433,12 @@ def _backend(self,level=0):
 
 @extend(node.expr_stmt)
 def _backend(self,level=0):
-    if isinstance(self.expr, node.expr_list):
-        if len(self.expr) == 1 and isinstance(self.expr[0], node.ident):
-            return "from "+str(self.expr[0])+" import *"
+    if (
+        isinstance(self.expr, node.expr_list)
+        and len(self.expr) == 1
+        and isinstance(self.expr[0], node.ident)
+    ):
+        return "from "+str(self.expr[0])+" import *"
     return self.expr._backend(level)
 
 @extend(node.for_stmt)
@@ -451,11 +451,10 @@ def _backend(self,level=0):
 
 @extend(node.func_stmt)
 def _backend(self,level=0):
-    s = """
+    return """
 def %s(%s):
 """ % (self.ident._backend(),
        self.args._backend())
-    return s
 
 @extend(node.funcall)
 def _backend(self,level=0):
