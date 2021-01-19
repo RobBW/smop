@@ -255,10 +255,7 @@ def p_expr(p):
     """
     #        | PLUSPLUS ident
     #        | MINUSMINUS ident
-    if p[1] == "~":
-        p[0] = node.ident(name="__")
-    else:
-        p[0] = p[1]
+    p[0] = node.ident(name="__") if p[1] == "~" else p[1]
 
 
 @exceptions
@@ -425,14 +422,8 @@ def p_ident_init_opt(p):
                    | ident
                    | ident EQ expr
     """
-    if p[1] == '~':
-        p[0] = node.ident("__")
-    else:
-        p[0] = p[1]
-    if len(p) == 2:
-        p[0].init = node.ident(name="None")
-    else:
-        p[0].init = p[3]
+    p[0] = node.ident("__") if p[1] == '~' else p[1]
+    p[0].init = node.ident(name="None") if len(p) == 2 else p[3]
 
 
 @exceptions
@@ -624,10 +615,7 @@ def p_matrix(p):
               | LBRACKET expr_list RBRACKET
               | LBRACKET expr_list SEMI RBRACKET
     """
-    if len(p) == 3:
-        p[0] = node.matrix()
-    else:
-        p[0] = node.matrix(p[2])
+    p[0] = node.matrix() if len(p) == 3 else node.matrix(p[2])
 
 
 @exceptions
@@ -763,10 +751,7 @@ def p_stmt_list_opt(p):
     stmt_list_opt :
                   | stmt_list
     """
-    if len(p) == 1:
-        p[0] = node.stmt_list()
-    else:
-        p[0] = p[1]
+    p[0] = node.stmt_list() if len(p) == 1 else p[1]
 
 
 @exceptions

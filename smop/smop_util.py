@@ -5,7 +5,7 @@ def safe_set(array,indices,value):
     try:
         array[indices]=value
     except:
-        for i in range(len(indices)-len(array.shape)):
+        for _ in range(len(indices)-len(array.shape)):
             array = array[np.newaxis]
         padamount = ()
         indexlist = []

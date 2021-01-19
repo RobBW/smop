@@ -48,14 +48,13 @@ def print_list(l):
     print(l)
     print(type(l))
     try:
-        if type(l) != str and type(l) != node.for_stmt:
+        if type(l) not in [str, node.for_stmt]:
             for i in l:
                 print_list(i)
     except:
         pass
     finally:
         print("End of "+str(type(l)))
-        pass
 
 #Fixes issue with array reference being listed as function calls
 def resolve_array_refs(l,graph_list):
@@ -65,7 +64,7 @@ def resolve_array_refs(l,graph_list):
                 if str(l.func_expr) == elem[0] and "F" != elem[3]:
                     l.__class__ = node.arrayref
                     break
-        if type(l) != str and type(l) != node.ident:
+        if type(l) not in [str, node.ident]:
             for i in l:
                 resolve_array_refs(i,graph_list)
     except Exception as e:

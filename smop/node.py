@@ -33,8 +33,7 @@ def encode(s):
 def postorder(u):
     if isinstance(u,node):
         for v in u:
-            for t in postorder(v):
-                yield t
+            yield from postorder(v)
         yield u # returns only traversible objects
 
 def extend(cls):
@@ -95,13 +94,13 @@ class global_list(node,list):
 
 class expr_list(node,list):
     def __str__(self):
-        return ",".join([str(t) for t in self])
+        return ",".join(str(t) for t in self)
     def __repr__(self):
         return "expr_list(%s)" % list.__repr__(self)
 
 class stmt_list(node,list):
     def __str__(self):
-        return "\n".join([str(t) for t in self])
+        return "\n".join(str(t) for t in self)
     def __repr__(self):
         return "stmt_list(%s)" % list.__repr__(self)
     def append(self,s):
@@ -307,8 +306,7 @@ class expr(node,recordtype("expr","op args")):
                                self.op,
                                self.args[1]._backend())
         ret = "%s=" % str(getattr(self,'ret',""))
-        return ret+"%s(%s)" % (self.op,
-                               ",".join([str(t) for t in self.args]))
+        return (ret + ("%s(%s)" % (self.op, ",".join(str(t) for t in self.args))))
 
 # names in caps correspond to fortran funcs
 builtins_list = [

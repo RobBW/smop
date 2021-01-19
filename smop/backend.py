@@ -241,10 +241,7 @@ reserved = set(
     #pi    sin  sqrt  tan
     
 def is_tab_empty(tab):
-    for elem in tab:
-        if elem != "":
-            return False
-    return True
+    return all(elem == "" for elem in tab)
 
 def compute_indexing(s):
     """
@@ -342,7 +339,7 @@ def _backend(self,level=0):
 @extend(node.concat_list)
 def _backend(self,level=0):
     #import pdb; pdb.set_trace()
-    return ",".join(["[%s]"%t._backend() for t in self])
+    return ",".join("[%s]"%t._backend() for t in self)
 
 @extend(node.continue_stmt)
 def _backend(self,level=0):
@@ -388,7 +385,7 @@ def _backend(self,level=0):
         if temp == "":
             temp = ":"
         return temp
-    
+
     if self.op == "end":
 #        if self.args:
 #            return "%s.shape[%s]" % (self.args[0]._backend(),
@@ -408,7 +405,6 @@ def _backend(self,level=0):
         else:
             return "getattr(%s,%s)" % (self.args[0]._backend(),
                                        self.args[1]._backend())
-
 #     if self.op == "matrix":
 #         return "[%s]" % ",".join([t._backend() for t in self.args])
     if self.op == "parens":
@@ -426,19 +422,23 @@ def _backend(self,level=0):
                            self.args[1]._backend())
     #import pdb;pdb.set_trace()
     ret = "%s=" % self.ret._backend() if self.ret else ""
-    return ret+"%s(%s)" % (self.op,
-                           ",".join([t._backend() for t in self.args]))
+    return ret + (
+        "%s(%s)" % (self.op, ",".join(t._backend() for t in self.args))
+    )
 
 
 @extend(node.expr_list)
 def _backend(self,level=0):
-    return ",".join([t._backend(level) for t in self])
+    return ",".join(t._backend(level) for t in self)
 
 @extend(node.expr_stmt)
 def _backend(self,level=0):
-    if isinstance(self.expr, node.expr_list):
-        if len(self.expr) == 1 and isinstance(self.expr[0], node.ident):
-            return "from "+str(self.expr[0])+" import *"
+    if (
+        isinstance(self.expr, node.expr_list)
+        and len(self.expr) == 1
+        and isinstance(self.expr[0], node.ident)
+    ):
+        return "from "+str(self.expr[0])+" import *"
     return self.expr._backend(level)
 
 @extend(node.for_stmt)
@@ -451,11 +451,10 @@ def _backend(self,level=0):
 
 @extend(node.func_stmt)
 def _backend(self,level=0):
-    s = """
+    return """
 def %s(%s):
 """ % (self.ident._backend(),
        self.args._backend())
-    return s
 
 @extend(node.funcall)
 def _backend(self,level=0):
@@ -476,7 +475,7 @@ def _backend(self,level=0):
 
 @extend(node.global_list)
 def _backend(self,level=0):
-    return ",".join([t._backend() for t in self])
+    return ",".join(t._backend() for t in self)
 
 @extend(node.ident)
 def _backend(self,level=0):

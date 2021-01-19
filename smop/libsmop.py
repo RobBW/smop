@@ -83,7 +83,7 @@ class matlabarray(np.ndarray):
     def compute_indices(self,index):
         if not isinstance(index,tuple):
            index = index,
-        if len(index) != 1 and len(index) != self.ndim:
+        if len(index) not in [1, self.ndim]:
             raise IndexError
         indices = []
         for i,ix in enumerate(index):
@@ -92,10 +92,7 @@ class matlabarray(np.ndarray):
             elif ix.__class__ is slice:
                 if self.size == 0 and ix.stop is None:
                     raise IndexError
-                if len(index) == 1:
-                    n = self.size
-                else:
-                    n = self.shape[i]
+                n = self.size if len(index) == 1 else self.shape[i]
                 indices.append(np.arange((ix.start or 1)-1,
                                           ix.stop  or n,
                                           ix.step  or 1,
@@ -318,7 +315,7 @@ class char(matlabarray):
 
     def __new__(cls, a=""):
         if not isinstance(a,str):
-            a = "".join([chr(c) for c in a])
+            a = "".join(chr(c) for c in a)
         obj = np.array(list(a),
                        dtype='|S1',
                        copy=False,
@@ -335,7 +332,7 @@ class char(matlabarray):
         if self.ndim == 0:
             return ""
         if self.ndim == 1:
-            return "".join(s for s in self)
+            return "".join(self)
         if self.ndim == 2:
             return "\n".join("".join(s) for s in self)
         raise NotImplementedError
@@ -393,7 +390,7 @@ def copy(a):
 
 def deal(a,**kwargs):
     #import pdb; pdb.set_trace()
-    return tuple([ai for ai in a.flat])
+    return tuple(a.flat)
 
 def disp(*args):
     print (args)
@@ -659,10 +656,7 @@ def size(a, b=0, nargout=1):
 def size_equal(a,b):
     if a.size != b.size:
         return False
-    for i in range(len(a.shape)):
-        if a.shape[i] != b.shape[i]:
-            return False
-    return True
+    return all(a.shape[i] == b.shape[i] for i in range(len(a.shape)))
 
 from numpy import sqrt
 sort = builtins.sorted

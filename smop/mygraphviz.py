@@ -11,18 +11,16 @@ def _graphviz(self,fp):
     if getattr(self,"__slots__",False):
         fp.write('"%s" [' % id(self))
         fp.write('label = "<f0> %s|' % self.__class__.__name__)
-        fp.write('|'.join(['<f%d> %s' % (i+1,s) for i,s in enumerate(self.__slots__)]))
-        fp.write('"]\n')
+        fp.write('|'.join('<f%d> %s' % (i+1,s) for i,s in enumerate(self.__slots__)))
     else:
         fp.write('"%s" [' % id(self))
         fp.write('label = "<f0> %s|' % self.__class__.__name__)
-        fp.write('|'.join(['<f%d> %d' % (i+1,i+1) for i in range(len(self))]))
-        fp.write('"]\n')
-
+        fp.write('|'.join('<f%d> %d' % (i+1,i+1) for i in range(len(self))))
+    fp.write('"]\n')
     for i,s in enumerate(self):
         if not isinstance(s,node.node):
             fp.write('"%s" [label="%s",shape=ellipse]\n' % (id(s),s))
-        if not s in [None,0,"",False]:
+        if s not in [None, 0, "", False]:
             fp.write('"%s":f%d -> "%s";\n' % (id(self), i+1, id(s)))
 
 @extend(node.number)
